@@ -1,6 +1,10 @@
 'use strict';
 
 import React from 'react';
+import styled, { ThemeProvider } from 'styled-components';
+import themeClair from '../Shared/GlobalTheme/clair';
+import themeSombre from '../Shared/GlobalTheme/sombre';
+import Icone from '../UI/Icone/Icone';
 
 var style = {
   wrapper: {
@@ -9,29 +13,18 @@ var style = {
     bottom: 0,
     right: 0,
     left: 0,
-    transition: 'background-color 0.25s ease-in-out'
+    transition: 'background-color 0.25s ease-in-out',
   },
-  swatches: {
-    position: 'absolute',
-    overflow: 'auto',
-    margin: 0,
-    bottom: '10px',
-    right: '10px'
-  },
-  swatch: {
-    display: 'block',
-    float: 'left',
-    margin: '0 0 0 10px',
-    width: '20px',
-    height: '20px',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    transition: 'opacity 0.25s ease-in-out'
-  }
-}
+};
+
+const SwitchCtn = styled.div`
+  position: absolute;
+  cursor: pointer;
+  bottom: 20px;
+  left: 20px;
+`;
 
 export class BackgroundColor extends React.Component {
-
   constructor(props, ctx) {
     super(props, ctx);
 
@@ -39,37 +32,36 @@ export class BackgroundColor extends React.Component {
     this.colors = props.colors || [];
 
     this.state = {
-      selected: this.colors[0]
+      theme: themeClair,
     };
   }
 
-  selectColor (color) {
-    return () => this.setState({selected: color});
+  changeTheme() {
+    return () =>
+      this.setState((c) => (c === themeClair ? themeSombre : themeClair));
   }
 
-  render () {
+  render() {
     return (
-      <div style={Object.assign({},
-          style.wrapper,
-          { backgroundColor: this.state.selected }
-        )}>
-        {this.story()}
-        <ul style={style.swatches}>
-          { this.colors.map(color => (
-            <li
-              key={color}
-              style={Object.assign({},
-                style.swatch, {
-                  backgroundColor: color,
-                  boxShadow: this.state.selected === color ? 'inset 0 0 0 2px rgba(0, 0, 0, 0.5)' : 'none'
-                }
-              )}
-              onClick={this.selectColor(color)} />
-          )) }
-        </ul>
+      <div
+        style={Object.assign({}, style.wrapper, {
+          backgroundColor: this.state.theme.body.normal,
+        })}
+      >
+        <ThemeProvider theme={this.state.theme}>
+          {this.story()}
+          <SwitchCtn>
+            <Icone
+              icone="JourNuit"
+              onClick={changeTheme}
+              style={{ size: 'grand' }}
+            />
+          </SwitchCtn>
+        </ThemeProvider>
       </div>
     );
   }
 }
 
-export default colors => story => <BackgroundColor colors={colors} story={story} />;
+export default (colors) => (story) =>
+  <BackgroundColor colors={colors} story={story} />;
